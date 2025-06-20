@@ -1,7 +1,7 @@
 import { IDoc } from '/imports/typings/IDoc';
 import { ISchema } from '/imports/typings/ISchema';
 
-export const TodoListSch: ISchema<ITodoList> = {
+export const todoSch: ISchema<ITodo> = {
 	image: {
 		type: String,
 		label: 'Imagem',
@@ -157,7 +157,7 @@ export const TodoListSch: ISchema<ITodoList> = {
 	}
 };
 
-export interface ITodoList extends IDoc {
+export interface ITodo extends IDoc {
 	image: string;
 	title: string;
 	description: string;

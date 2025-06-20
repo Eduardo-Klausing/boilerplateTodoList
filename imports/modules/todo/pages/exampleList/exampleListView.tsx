@@ -3,26 +3,26 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { SysFab } from '/imports/ui/components/sysFab/sysFab';
-import { TodoListListControllerContext } from './TodoListListController';
+import { TodoListControllerContext } from './todoListController';
 import { useNavigate } from 'react-router-dom';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import DeleteDialog from '/imports/ui/appComponents/showDialog/custom/deleteDialog/deleteDialog';
 import { SysAppLayoutContext } from '/imports/app/appLayout';
-import TodoListListStyles from './TodoListListStyles';
+import TodoListStyles from './todoListStyles';
 import SysTextField from '/imports/ui/components/sysFormFields/sysTextField/sysTextField';
 import { SysSelectField } from '/imports/ui/components/sysFormFields/sysSelectField/sysSelectField';
 import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
 
 
-const TodoListListView = () => {
-	const controller = React.useContext(TodoListListControllerContext);
+const TodoListView = () => {
+	const controller = React.useContext(TodoListControllerContext);
 	const sysLayoutContext = React.useContext(SysAppLayoutContext);
 	const navigate = useNavigate();
   const {
     Container,
     LoadingContainer,
     SearchContainer
-  } = TodoListListStyles;
+  } = TodoListStyles;
 
 	const options = [{ value: '', label: 'Nenhum' }, ...(controller.schema.type.options?.() ?? [])];
 
@@ -54,9 +54,9 @@ const TodoListListView = () => {
 					<ComplexTable
 						data={controller.todoList}
 						schema={controller.schema}
-						onRowClick={(row) => navigate('/TodoList/view/' + row.id)}
+						onRowClick={(row) => navigate('/todo/view/' + row.id)}
 						searchPlaceholder={'Pesquisar exemplo'}
-						onEdit={(row) => navigate('/TodoList/edit/' + row._id)}
+						onEdit={(row) => navigate('/todo/edit/' + row._id)}
 						onDelete={(row) => {
 							DeleteDialog({
 								showDialog: sysLayoutContext.showDialog,
@@ -86,4 +86,4 @@ const TodoListListView = () => {
 	);
 };
 
-export default TodoListListView;
+export default TodoListView;

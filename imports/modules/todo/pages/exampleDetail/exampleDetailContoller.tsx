@@ -1,37 +1,37 @@
 import React, { createContext, useCallback, useContext } from 'react';
-import TodoListDetailView from './TodoListDetailView';
+import TodoDetailView from './todoDetailView';
 import { useNavigate } from 'react-router-dom';
-import { TodoListModuleContext } from '../../TodoListContainer';
+import { TodoModuleContext } from '../../todoContainer';
 import { useTracker } from 'meteor/react-meteor-data';
-import { TodoListApi } from '../../api/TodoListApi';
-import { ITodoList } from '../../api/TodoListSch';
+import { todoApi } from '../../api/todoApi';
+import { ITodo } from '../../api/todoSch';
 import { ISchema } from '/imports/typings/ISchema';
 import { IMeteorError } from '/imports/typings/BoilerplateDefaultTypings';
 import { SysAppLayoutContext } from '/imports/app/appLayout';
 
-interface ITodoListDetailContollerContext {
+interface ITodoDetailContollerContext {
 	closePage: () => void;
-	document: ITodoList;
+	document: ITodo;
 	loading: boolean;
-	schema: ISchema<ITodoList>;
-	onSubmit: (doc: ITodoList) => void;
+	schema: ISchema<ITodo>;
+	onSubmit: (doc: ITodo) => void;
 	changeToEdit: (id: string) => void;
 }
 
-export const TodoListDetailControllerContext = createContext<ITodoListDetailContollerContext>(
-	{} as ITodoListDetailContollerContext
+export const TodoDetailControllerContext = createContext<ITodoDetailContollerContext>(
+	{} as ITodoDetailContollerContext
 );
 
-const TodoListDetailController = () => {
+const TodoDetailController = () => {
 	const navigate = useNavigate();
-	const { id, state } = useContext(TodoListModuleContext);
+	const { id, state } = useContext(TodoModuleContext);
 	const { showNotification } = useContext(SysAppLayoutContext);
 
 	const { document, loading } = useTracker(() => {
-		const subHandle = !!id ? TodoListApi.subscribe('TodoListDetail', { _id: id }) : null;
-		const document = id && subHandle?.ready() ? TodoListApi.findOne({ _id: id }) : {};
+		const subHandle = !!id ? todoApi.subscribe('todoDetail', { _id: id }) : null;
+		const document = id && subHandle?.ready() ? todoApi.findOne({ _id: id }) : {};
 		return {
-			document: (document as ITodoList) ?? ({ _id: id } as ITodoList),
+			document: (document as ITodo) ?? ({ _id: id } as ITodo),
 			loading: !!subHandle && !subHandle?.ready()
 		};
 	}, [id]);
@@ -40,12 +40,12 @@ const TodoListDetailController = () => {
 		navigate(-1);
 	}, []);
 	const changeToEdit = useCallback((id: string) => {
-		navigate(`/TodoList/edit/${id}`);
+		navigate(`/todo/edit/${id}`);
 	}, []);
 
-	const onSubmit = useCallback((doc: ITodoList) => {
+	const onSubmit = useCallback((doc: ITodo) => {
 		const selectedAction = state === 'create' ? 'insert' : 'update';
-		TodoListApi[selectedAction](doc, (e: IMeteorError) => {
+		todoApi[selectedAction](doc, (e: IMeteorError) => {
 			if (!e) {
 				closePage();
 				showNotification({
@@ -64,18 +64,18 @@ const TodoListDetailController = () => {
 	}, []);
 
 	return (
-		<TodoListDetailControllerContext.Provider
+		<TodoDetailControllerContext.Provider
 			value={{
 				closePage,
 				document: { ...document, _id: id },
 				loading,
-				schema: TodoListApi.getSchema(),
+				schema: todoApi.getSchema(),
 				onSubmit,
 				changeToEdit
 			}}>
-			{<TodoListDetailView />}
-		</TodoListDetailControllerContext.Provider>
+			{<TodoDetailView />}
+		</TodoDetailControllerContext.Provider>
 	);
 };
 
-export default TodoListDetailController;
+export default TodoDetailController;

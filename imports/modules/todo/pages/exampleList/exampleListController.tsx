@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import TodoListListView from './TodoListListView';
+import TodoListView from './todoListView';
 import { nanoid } from 'nanoid';
 import { useNavigate } from 'react-router-dom';
 import { useTracker } from 'meteor/react-meteor-data';
 import { ISchema } from '/imports/typings/ISchema';
-import { ITodoList } from '../../api/TodoListSch';
-import { TodoListApi } from '../../api/TodoListApi';
+import { ITodo } from '../../api/todoSch';
+import { todoApi } from '../../api/todoApi';
 
 interface IInitialConfig {
 	sortProperties: { field: string; sortAscending: boolean };
@@ -14,18 +14,18 @@ interface IInitialConfig {
 	viewComplexTable: boolean;
 }
 
-interface ITodoListListContollerContext {
+interface ITodoListContollerContext {
 	onAddButtonClick: () => void;
 	onDeleteButtonClick: (row: any) => void;
-	todoList: ITodoList[];
+	todoList: ITodo[];
 	schema: ISchema<any>;
 	loading: boolean;
 	onChangeTextField: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onChangeCategory: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const TodoListListControllerContext = React.createContext<ITodoListListContollerContext>(
-	{} as ITodoListListContollerContext
+export const TodoListControllerContext = React.createContext<ITodoListContollerContext>(
+	{} as ITodoListContollerContext
 );
 
 const initialConfig = {
@@ -35,11 +35,11 @@ const initialConfig = {
 	viewComplexTable: false
 };
 
-const TodoListListController = () => {
+const TodoListController = () => {
 	const [config, setConfig] = React.useState<IInitialConfig>(initialConfig);
 
-	const { title, type, typeMulti } = TodoListApi.getSchema();
-	const TodoListSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
+	const { title, type, typeMulti } = todoApi.getSchema();
+	const todoSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
 	const navigate = useNavigate();
 
 	const { sortProperties, filter } = config;
@@ -47,25 +47,25 @@ const TodoListListController = () => {
 		[sortProperties.field]: sortProperties.sortAscending ? 1 : -1
 	};
 
-	const { loading, TodoLists } = useTracker(() => {
-		const subHandle = TodoListApi.subscribe('TodoListList', filter, {
+	const { loading, todos } = useTracker(() => {
+		const subHandle = todoApi.subscribe('todoList', filter, {
 			sort
 		});
-		const TodoLists = subHandle?.ready() ? TodoListApi.find(filter, { sort }).fetch() : [];
+		const todos = subHandle?.ready() ? todoApi.find(filter, { sort }).fetch() : [];
 		return {
-			TodoLists,
+			todos,
 			loading: !!subHandle && !subHandle.ready(),
-			total: subHandle ? subHandle.total : TodoLists.length
+			total: subHandle ? subHandle.total : todos.length
 		};
 	}, [config]);
 
 	const onAddButtonClick = useCallback(() => {
 		const newDocumentId = nanoid();
-		navigate(`/TodoList/create/${newDocumentId}`);
+		navigate(`/todo/create/${newDocumentId}`);
 	}, []);
 
 	const onDeleteButtonClick = useCallback((row: any) => {
-		TodoListApi.remove(row);
+		todoApi.remove(row);
 	}, []);
 
 	const onChangeTextField = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,24 +94,24 @@ const TodoListListController = () => {
 		setConfig((prev) => ({ ...prev, filter: { ...prev.filter, type: value } }));
 	}, []);
 
-	const providerValues: ITodoListListContollerContext = useMemo(
+	const providerValues: ITodoListContollerContext = useMemo(
 		() => ({
 			onAddButtonClick,
 			onDeleteButtonClick,
-			todoList: TodoLists,
-			schema: TodoListSchReduzido,
+			todoList: todos,
+			schema: todoSchReduzido,
 			loading,
 			onChangeTextField,
 			onChangeCategory: onSelectedCategory
 		}),
-		[TodoLists, loading]
+		[todos, loading]
 	);
 
 	return (
-		<TodoListListControllerContext.Provider value={providerValues}>
-			<TodoListListView />
-		</TodoListListControllerContext.Provider>
+		<TodoListControllerContext.Provider value={providerValues}>
+			<TodoListView />
+		</TodoListControllerContext.Provider>
 	);
 };
 
-export default TodoListListController;
+export default TodoListController;

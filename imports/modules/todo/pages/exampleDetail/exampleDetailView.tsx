@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import { TodoListDetailControllerContext } from './TodoListDetailContoller';
-import { TodoListModuleContext } from '../../TodoListContainer';
-import TodoListDetailStyles from './TodoListDetailStyles';
+import { TodoDetailControllerContext } from './todoDetailContoller';
+import { TodoModuleContext } from '../../todoContainer';
+import TodoDetailStyles from './todoDetailStyles';
 import SysForm from '/imports/ui/components/sysForm/sysForm';
 import SysTextField from '/imports/ui/components/sysFormFields/sysTextField/sysTextField';
 import Typography from '@mui/material/Typography';
@@ -16,9 +16,9 @@ import SysSlider from '/imports/ui/components/sysFormFields/sysSlider/sysSliderF
 import { SysLocationField } from '/imports/ui/components/sysFormFields/sysLocationField/sysLocationField';
 import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
 
-const TodoListDetailView = () => {
-	const controller = useContext(TodoListDetailControllerContext);
-	const { state } = useContext(TodoListModuleContext);
+const TodoDetailView = () => {
+	const controller = useContext(TodoDetailControllerContext);
+	const { state } = useContext(TodoModuleContext);
 	const isView = state === 'view';
 	const isEdit = state === 'edit';
 	const isCreate = state === 'create';
@@ -28,7 +28,7 @@ const TodoListDetailView = () => {
     Header,
     Footer,
     FormColumn
-  } = TodoListDetailStyles;
+  } = TodoDetailStyles;
 
 	return (
 		<Container>
@@ -87,4 +87,4 @@ const TodoListDetailView = () => {
 	);
 };
 
-export default TodoListDetailView;
+export default TodoDetailView;

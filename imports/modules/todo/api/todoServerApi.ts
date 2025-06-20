@@ -1,14 +1,14 @@
 // region Imports
 import { Recurso } from '../config/recursos';
-import { TodoListSch, ITodoList } from './TodoListSch';
+import { todoSch, ITodo } from './todoSch';
 import { userprofileServerApi } from '/imports/modules/userprofile/api/userProfileServerApi';
 import { ProductServerBase } from '/imports/api/productServerBase';
 
 // endregion
 
-class TodoListServerApi extends ProductServerBase<ITodoList> {
+class TodoServerApi extends ProductServerBase<ITodo> {
 	constructor() {
-		super('TodoList', TodoListSch, {
+		super('todo', todoSch, {
 			resources: Recurso
 			// saveImageToDisk: true,
 		});
@@ -16,19 +16,19 @@ class TodoListServerApi extends ProductServerBase<ITodoList> {
 		const self = this;
 
 		this.addTransformedPublication(
-			'TodoListList',
+			'todoList',
 			(filter = {}) => {
 				return this.defaultListCollectionPublication(filter, {
 					projection: { title: 1, type: 1, typeMulti: 1, createdat: 1 }
 				});
 			},
-			(doc: ITodoList & { nomeUsuario: string }) => {
+			(doc: ITodo & { nomeUsuario: string }) => {
 				const userProfileDoc = userprofileServerApi.getCollectionInstance().findOne({ _id: doc.createdby });
 				return { ...doc };
 			}
 		);
 
-		this.addPublication('TodoListDetail', (filter = {}) => {
+		this.addPublication('todoDetail', (filter = {}) => {
 			return this.defaultDetailCollectionPublication(filter, {
 				projection: {
 					contacts: 1,
@@ -59,14 +59,14 @@ class TodoListServerApi extends ProductServerBase<ITodoList> {
 		);
 
 		this.addRestEndpoint(
-			'view/:TodoListId',
+			'view/:todoId',
 			(params, _options) => {
 				console.log('Rest', params);
-				if (params.TodoListId) {
+				if (params.todoId) {
 					return self
 						.defaultCollectionPublication(
 							{
-								_id: params.TodoListId
+								_id: params.todoId
 							},
 							{}
 						)
@@ -80,4 +80,4 @@ class TodoListServerApi extends ProductServerBase<ITodoList> {
 	}
 }
 
-export const TodoListServerApi = new TodoListServerApi();
+export const todoServerApi = new TodoServerApi();
