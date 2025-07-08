@@ -13,36 +13,25 @@ interface ISignInStyles {
 
 const SignInStyles: ISignInStyles = {
 	Container: styled(Box)(({ theme }) => ({
-		minHeight: '100vh',
-		width: '100%',
-		backgroundColor: theme.palette.primary.main,
-		color: theme.palette.primary.contrastText,
-		position: 'relative',
+  		minHeight: '100vh',
+ 		 width: '100%',
+  		backgroundColor: theme.palette.info.contrastText,
+  		color: theme.palette.common.black,
 
-		[theme.breakpoints.up('md')]: {
-			backgroundImage: 'url(/images/wireframe/background-synergia.svg)',
-			backgroundSize: 'cover',
-			backgroundPosition: 'right'
-		}
+  		display: 'flex',
+  		justifyContent: 'center',
+  		alignItems: 'center',
+  		padding: theme.spacing(2), 
 	})),
 	Content: styled(Box)(({ theme }) => ({
 		width: '100%',
-		height: '100%',
+		maxWidth: '480px', // opcional para limitar largura
 		display: 'flex',
 		flexDirection: 'column',
-		justifyContent: 'space-evenly',
+		justifyContent: 'center',
 		alignItems: 'center',
 		gap: theme.spacing(6),
 		padding: `${sysSizing.spacingFixedLg} ${sysSizing.spacingFixedXl}`,
-
-		[theme.breakpoints.up('md')]: {
-			width: 'auto',
-			height: 'auto',
-			position: 'absolute',
-			top: '50%',
-			left: '10%',
-			transform: 'translateY(-50%)'
-		}
 	})),
 	FormContainer: styled(Paper)(({ theme }) => ({
 		width: '100%',

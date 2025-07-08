@@ -23,11 +23,11 @@ const SignInPage: React.FC = () => {
 			if (!err) navigate('/');
 			showNotification({
 				type: 'error',
-				title: 'Erro ao tentar logar',
-				message: 'Email ou senha inválidos',
+				title: 'Falha no login',
+				message: 'Verifique suas credenciais e tente novamente.',
 			});
 		});
-;	};
+	};
 
 	const handleForgotPassword = () => navigate('/password-recovery');
 
@@ -38,34 +38,48 @@ const SignInPage: React.FC = () => {
 	return (
 		<Container>
 			<Content>
-				<Typography variant="h1" display={'inline-flex'} gap={1}>
-					<Typography variant="inherit" color={(theme) => theme.palette.sysText?.tertiary}>
-						{'{'}
-					</Typography>
-					Boilerplate
-					<Typography variant="inherit" color="sysText.tertiary">
-						{'}'}
-					</Typography>
+				<Typography variant="h2" fontWeight="bold" gutterBottom>
+					ToDo List
+				</Typography>
+
+				<Typography variant="body1" sx={{ mb: 4, textAlign: 'center', maxWidth: 400 }}>
+					Organize sua rotina com eficiência. Acesse sua conta para visualizar e gerenciar suas tarefas com facilidade.
 				</Typography>
 
 				<FormContainer>
-					<Typography variant="h5">Acesse o sistema</Typography>
 					<SysForm schema={signInSchema} onSubmit={handleSubmit} debugAlerts={false}>
 						<FormWrapper>
-							<SysTextField name="email" label="Email" fullWidth placeholder="Digite seu email" />
-							<SysTextField label="Senha" fullWidth name="password" placeholder="Digite sua senha" type="password" />
-							<Button variant="text" sx={{ alignSelf: 'flex-end' }} onClick={handleForgotPassword}>
-								<Typography variant="link">Esqueci minha senha</Typography>
+							<SysTextField name="email" label="E-mail" fullWidth placeholder="seu@email.com" />
+							<SysTextField label="Senha" fullWidth name="password" placeholder="********" type="password" />
+
+							<Button variant="text" sx={{ alignSelf: 'flex-end', mt: 1 }} onClick={handleForgotPassword}>
+								<Typography variant="caption" fontWeight="medium" color="primary">
+									Esqueceu a senha?
+								</Typography>
 							</Button>
-							<Box />
-							<SysFormButton variant="contained" color="primary" endIcon={<SysIcon name={'arrowForward'} />}>
-								Entrar
+
+							<SysFormButton variant="contained" color="primary">
+								Acessar Conta
 							</SysFormButton>
+
+							<Box mt={2} textAlign="center">
+								<Typography variant="body2">
+									Novo por aqui?{' '}
+									<Typography
+										component="span"
+										variant="body2"
+										color="primary"
+										sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+										onClick={() => navigate('/signup')}
+									>
+										Criar uma conta
+									</Typography>
+								</Typography>
+							</Box>
 						</FormWrapper>
 					</SysForm>
 				</FormContainer>
 
-				<Box component="img" src="/images/wireframe/synergia-logo.svg" sx={{ width: '100%', maxWidth: '400px' }} />
 			</Content>
 		</Container>
 	);

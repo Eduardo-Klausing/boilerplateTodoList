@@ -31,7 +31,10 @@ export const AppRouterSwitch: React.FC = React.memo(() => {
 	if (!sysRoutes.checkIfRouteExists(location.pathname)) return <NotFound />;	
 
 	if (userLoading) return <SysLoading size="large" label="Carregando..." />;
-	
+
+	const rootRoute = sysRoutes.getRoutes().find((route) => route.path === '/');
+	console.log('ROOT ROUTE:', rootRoute);
+
 	return (
 		<Routes>
 			{sysRoutes.getRoutes().map((route) => (
