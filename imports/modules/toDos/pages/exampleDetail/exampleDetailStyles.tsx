@@ -4,7 +4,7 @@ import Box, { BoxProps } from '@mui/material/Box';
 import { sysSizing } from '/imports/ui/materialui/styles';
 import {SysSectionPaddingXY} from "/imports/ui/layoutComponents/sysLayoutComponents";
 
-interface ITodoDetailStyles {
+interface IToDosDetailStyles {
 	Container: ElementType<BoxProps>;
 	Header: ElementType<BoxProps>;
 	Body: ElementType<BoxProps>;
@@ -12,7 +12,7 @@ interface ITodoDetailStyles {
 	FormColumn: ElementType<BoxProps>;
 }
 
-const TodoDetailStyles: ITodoDetailStyles = {
+const ToDosDetailStyles: IToDosDetailStyles = {
 	Container: styled(SysSectionPaddingXY)(() => ({
 		display: 'flex',
 		flexDirection: 'column',
@@ -58,4 +58,4 @@ const TodoDetailStyles: ITodoDetailStyles = {
 	})
 };
 
-export default TodoDetailStyles;
+export default ToDosDetailStyles;

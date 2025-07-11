@@ -3,26 +3,26 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { SysFab } from '/imports/ui/components/sysFab/sysFab';
-import { TodoListControllerContext } from './todoListController';
+import { ToDosListControllerContext } from './toDosListController';
 import { useNavigate } from 'react-router-dom';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import DeleteDialog from '/imports/ui/appComponents/showDialog/custom/deleteDialog/deleteDialog';
 import { SysAppLayoutContext } from '/imports/app/appLayout';
-import TodoListStyles from './todoListStyles';
+import ToDosListStyles from './toDosListStyles';
 import SysTextField from '/imports/ui/components/sysFormFields/sysTextField/sysTextField';
 import { SysSelectField } from '/imports/ui/components/sysFormFields/sysSelectField/sysSelectField';
 import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
 
 
-const TodoListView = () => {
-	const controller = React.useContext(TodoListControllerContext);
+const ToDosListView = () => {
+	const controller = React.useContext(ToDosListControllerContext);
 	const sysLayoutContext = React.useContext(SysAppLayoutContext);
 	const navigate = useNavigate();
   const {
     Container,
     LoadingContainer,
     SearchContainer
-  } = TodoListStyles;
+  } = ToDosListStyles;
 
 	const options = [{ value: '', label: 'Nenhum' }, ...(controller.schema.type.options?.() ?? [])];
 
@@ -54,9 +54,9 @@ const TodoListView = () => {
 					<ComplexTable
 						data={controller.todoList}
 						schema={controller.schema}
-						onRowClick={(row) => navigate('/todo/view/' + row.id)}
+						onRowClick={(row) => navigate('/toDos/view/' + row.id)}
 						searchPlaceholder={'Pesquisar exemplo'}
-						onEdit={(row) => navigate('/todo/edit/' + row._id)}
+						onEdit={(row) => navigate('/toDos/edit/' + row._id)}
 						onDelete={(row) => {
 							DeleteDialog({
 								showDialog: sysLayoutContext.showDialog,
@@ -86,4 +86,4 @@ const TodoListView = () => {
 	);
 };
 
-export default TodoListView;
+export default ToDosListView;

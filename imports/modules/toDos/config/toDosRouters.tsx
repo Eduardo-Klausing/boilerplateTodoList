@@ -1,23 +1,23 @@
-import TodoContainer from '../todoContainer';
+import ToDosContainer from '../toDosContainer';
 import { Recurso } from './recursos';
 import { IRoute } from '/imports/modules/modulesTypings';
 
-export const todoRouterList: (IRoute | null)[] = [
+export const toDosRouterList: (IRoute | null)[] = [
 	{
-		path: '/todo/:screenState/:todoId',
-		component: TodoContainer,
+		path: '/toDos/:screenState/:toDosId',
+		component: ToDosContainer,
 		isProtected: true,
 		resources: [Recurso.EXAMPLE_VIEW]
 	},
 	{
-		path: '/todo/:screenState',
-		component: TodoContainer,
+		path: '/toDos/:screenState',
+		component: ToDosContainer,
 		isProtected: true,
 		resources: [Recurso.EXAMPLE_CREATE]
 	},
 	{
-		path: '/todo',
-		component: TodoContainer,
+		path: '/toDos',
+		component: ToDosContainer,
 		isProtected: true,
 		resources: [Recurso.EXAMPLE_VIEW]
 	}

@@ -40,7 +40,7 @@ const SysAppBarStyles: ISysAppBarStyles = {
     [theme.breakpoints.down('md')]: { display: 'none' },
   })),
   navContainerMobile: styled(Box)(({ theme }) => ({
-    display: 'none',
+    display: 'flex',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',

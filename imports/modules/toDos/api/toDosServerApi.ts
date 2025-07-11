@@ -1,14 +1,14 @@
 // region Imports
 import { Recurso } from '../config/recursos';
-import { todoSch, ITodo } from './todoSch';
+import { toDosSch, IToDos } from './toDosSch';
 import { userprofileServerApi } from '/imports/modules/userprofile/api/userProfileServerApi';
 import { ProductServerBase } from '/imports/api/productServerBase';
 
 // endregion
 
-class TodoServerApi extends ProductServerBase<ITodo> {
+class ToDosServerApi extends ProductServerBase<IToDos> {
 	constructor() {
-		super('todo', todoSch, {
+		super('toDos', toDosSch, {
 			resources: Recurso
 			// saveImageToDisk: true,
 		});
@@ -16,19 +16,19 @@ class TodoServerApi extends ProductServerBase<ITodo> {
 		const self = this;
 
 		this.addTransformedPublication(
-			'todoList',
+			'toDosList',
 			(filter = {}) => {
 				return this.defaultListCollectionPublication(filter, {
 					projection: { title: 1, type: 1, typeMulti: 1, createdat: 1 }
 				});
 			},
-			(doc: ITodo & { nomeUsuario: string }) => {
+			(doc: IToDos & { nomeUsuario: string }) => {
 				const userProfileDoc = userprofileServerApi.getCollectionInstance().findOne({ _id: doc.createdby });
 				return { ...doc };
 			}
 		);
 
-		this.addPublication('todoDetail', (filter = {}) => {
+		this.addPublication('toDosDetail', (filter = {}) => {
 			return this.defaultDetailCollectionPublication(filter, {
 				projection: {
 					contacts: 1,
@@ -59,14 +59,14 @@ class TodoServerApi extends ProductServerBase<ITodo> {
 		);
 
 		this.addRestEndpoint(
-			'view/:todoId',
+			'view/:toDosId',
 			(params, _options) => {
 				console.log('Rest', params);
-				if (params.todoId) {
+				if (params.toDosId) {
 					return self
 						.defaultCollectionPublication(
 							{
-								_id: params.todoId
+								_id: params.toDosId
 							},
 							{}
 						)
@@ -80,4 +80,4 @@ class TodoServerApi extends ProductServerBase<ITodo> {
 	}
 }
 
-export const todoServerApi = new TodoServerApi();
+export const toDosServerApi = new ToDosServerApi();

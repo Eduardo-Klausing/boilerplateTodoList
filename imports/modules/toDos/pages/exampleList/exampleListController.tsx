@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import TodoListView from './todoListView';
+import ToDosListView from './toDosListView';
 import { nanoid } from 'nanoid';
 import { useNavigate } from 'react-router-dom';
 import { useTracker } from 'meteor/react-meteor-data';
 import { ISchema } from '/imports/typings/ISchema';
-import { ITodo } from '../../api/todoSch';
-import { todoApi } from '../../api/todoApi';
+import { IToDos } from '../../api/toDosSch';
+import { toDosApi } from '../../api/toDosApi';
 
 interface IInitialConfig {
 	sortProperties: { field: string; sortAscending: boolean };
@@ -14,18 +14,18 @@ interface IInitialConfig {
 	viewComplexTable: boolean;
 }
 
-interface ITodoListContollerContext {
+interface IToDosListContollerContext {
 	onAddButtonClick: () => void;
 	onDeleteButtonClick: (row: any) => void;
-	todoList: ITodo[];
+	todoList: IToDos[];
 	schema: ISchema<any>;
 	loading: boolean;
 	onChangeTextField: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onChangeCategory: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const TodoListControllerContext = React.createContext<ITodoListContollerContext>(
-	{} as ITodoListContollerContext
+export const ToDosListControllerContext = React.createContext<IToDosListContollerContext>(
+	{} as IToDosListContollerContext
 );
 
 const initialConfig = {
@@ -35,11 +35,11 @@ const initialConfig = {
 	viewComplexTable: false
 };
 
-const TodoListController = () => {
+const ToDosListController = () => {
 	const [config, setConfig] = React.useState<IInitialConfig>(initialConfig);
 
-	const { title, type, typeMulti } = todoApi.getSchema();
-	const todoSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
+	const { title, type, typeMulti } = toDosApi.getSchema();
+	const toDosSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
 	const navigate = useNavigate();
 
 	const { sortProperties, filter } = config;
@@ -47,25 +47,25 @@ const TodoListController = () => {
 		[sortProperties.field]: sortProperties.sortAscending ? 1 : -1
 	};
 
-	const { loading, todos } = useTracker(() => {
-		const subHandle = todoApi.subscribe('todoList', filter, {
+	const { loading, toDoss } = useTracker(() => {
+		const subHandle = toDosApi.subscribe('toDosList', filter, {
 			sort
 		});
-		const todos = subHandle?.ready() ? todoApi.find(filter, { sort }).fetch() : [];
+		const toDoss = subHandle?.ready() ? toDosApi.find(filter, { sort }).fetch() : [];
 		return {
-			todos,
+			toDoss,
 			loading: !!subHandle && !subHandle.ready(),
-			total: subHandle ? subHandle.total : todos.length
+			total: subHandle ? subHandle.total : toDoss.length
 		};
 	}, [config]);
 
 	const onAddButtonClick = useCallback(() => {
 		const newDocumentId = nanoid();
-		navigate(`/todo/create/${newDocumentId}`);
+		navigate(`/toDos/create/${newDocumentId}`);
 	}, []);
 
 	const onDeleteButtonClick = useCallback((row: any) => {
-		todoApi.remove(row);
+		toDosApi.remove(row);
 	}, []);
 
 	const onChangeTextField = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,24 +94,24 @@ const TodoListController = () => {
 		setConfig((prev) => ({ ...prev, filter: { ...prev.filter, type: value } }));
 	}, []);
 
-	const providerValues: ITodoListContollerContext = useMemo(
+	const providerValues: IToDosListContollerContext = useMemo(
 		() => ({
 			onAddButtonClick,
 			onDeleteButtonClick,
-			todoList: todos,
-			schema: todoSchReduzido,
+			todoList: toDoss,
+			schema: toDosSchReduzido,
 			loading,
 			onChangeTextField,
 			onChangeCategory: onSelectedCategory
 		}),
-		[todos, loading]
+		[toDoss, loading]
 	);
 
 	return (
-		<TodoListControllerContext.Provider value={providerValues}>
-			<TodoListView />
-		</TodoListControllerContext.Provider>
+		<ToDosListControllerContext.Provider value={providerValues}>
+			<ToDosListView />
+		</ToDosListControllerContext.Provider>
 	);
 };
 
-export default TodoListController;
+export default ToDosListController;
