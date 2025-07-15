@@ -29,7 +29,7 @@ const SysAppBarView: React.FC<ISysAppBar> = ({ logo }) => {
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => navigate('/boas-vindas')}
+          onClick={() => navigate('/')}
           sx={{
             borderRadius: '50px',
             textTransform: 'none',
