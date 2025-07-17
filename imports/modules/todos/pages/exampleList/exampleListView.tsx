@@ -3,26 +3,26 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import { SysFab } from '/imports/ui/components/sysFab/sysFab';
-import { ToDosListControllerContext } from './toDosListController';
+import { TodosListControllerContext } from './todosListController';
 import { useNavigate } from 'react-router-dom';
 import { ComplexTable } from '/imports/ui/components/ComplexTable/ComplexTable';
 import DeleteDialog from '/imports/ui/appComponents/showDialog/custom/deleteDialog/deleteDialog';
 import { SysAppLayoutContext } from '/imports/app/appLayout';
-import ToDosListStyles from './toDosListStyles';
+import TodosListStyles from './todosListStyles';
 import SysTextField from '/imports/ui/components/sysFormFields/sysTextField/sysTextField';
 import { SysSelectField } from '/imports/ui/components/sysFormFields/sysSelectField/sysSelectField';
 import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
 
 
-const ToDosListView = () => {
-	const controller = React.useContext(ToDosListControllerContext);
+const TodosListView = () => {
+	const controller = React.useContext(TodosListControllerContext);
 	const sysLayoutContext = React.useContext(SysAppLayoutContext);
 	const navigate = useNavigate();
   const {
     Container,
     LoadingContainer,
     SearchContainer
-  } = ToDosListStyles;
+  } = TodosListStyles;
 
 	const options = [{ value: '', label: 'Nenhum' }, ...(controller.schema.type.options?.() ?? [])];
 
@@ -54,9 +54,9 @@ const ToDosListView = () => {
 					<ComplexTable
 						data={controller.todoList}
 						schema={controller.schema}
-						onRowClick={(row) => navigate('/toDos/view/' + row.id)}
+						onRowClick={(row) => navigate('/todos/view/' + row.id)}
 						searchPlaceholder={'Pesquisar exemplo'}
-						onEdit={(row) => navigate('/toDos/edit/' + row._id)}
+						onEdit={(row) => navigate('/todos/edit/' + row._id)}
 						onDelete={(row) => {
 							DeleteDialog({
 								showDialog: sysLayoutContext.showDialog,
@@ -86,4 +86,4 @@ const ToDosListView = () => {
 	);
 };
 
-export default ToDosListView;
+export default TodosListView;

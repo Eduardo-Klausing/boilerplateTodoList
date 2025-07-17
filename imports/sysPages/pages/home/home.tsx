@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { useTracker } from 'meteor/react-meteor-data';
 import HomeStyles from './homeStyle';
-import { TarefasCollection } from '/imports/api/tarefas'; // ajuste o caminho conforme sua estrutura
+import { TarefasCollection } from '/imports/api/tarefas'; 
 
 
 const Home: React.FC = () => {

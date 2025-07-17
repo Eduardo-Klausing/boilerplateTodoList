@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import { ToDosDetailControllerContext } from './toDosDetailContoller';
-import { ToDosModuleContext } from '../../toDosContainer';
-import ToDosDetailStyles from './toDosDetailStyles';
+import { TodosDetailControllerContext } from './todosDetailContoller';
+import { TodosModuleContext } from '../../todosContainer';
+import TodosDetailStyles from './todosDetailStyles';
 import SysForm from '/imports/ui/components/sysForm/sysForm';
 import SysTextField from '/imports/ui/components/sysFormFields/sysTextField/sysTextField';
 import Typography from '@mui/material/Typography';
@@ -16,9 +16,9 @@ import SysSlider from '/imports/ui/components/sysFormFields/sysSlider/sysSliderF
 import { SysLocationField } from '/imports/ui/components/sysFormFields/sysLocationField/sysLocationField';
 import SysIcon from '/imports/ui/components/sysIcon/sysIcon';
 
-const ToDosDetailView = () => {
-	const controller = useContext(ToDosDetailControllerContext);
-	const { state } = useContext(ToDosModuleContext);
+const TodosDetailView = () => {
+	const controller = useContext(TodosDetailControllerContext);
+	const { state } = useContext(TodosModuleContext);
 	const isView = state === 'view';
 	const isEdit = state === 'edit';
 	const isCreate = state === 'create';
@@ -28,7 +28,7 @@ const ToDosDetailView = () => {
     Header,
     Footer,
     FormColumn
-  } = ToDosDetailStyles;
+  } = TodosDetailStyles;
 
 	return (
 		<Container>
@@ -87,4 +87,4 @@ const ToDosDetailView = () => {
 	);
 };
 
-export default ToDosDetailView;
+export default TodosDetailView;

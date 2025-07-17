@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import ToDosListView from './toDosListView';
+import TodosListView from './todosListView';
 import { nanoid } from 'nanoid';
 import { useNavigate } from 'react-router-dom';
 import { useTracker } from 'meteor/react-meteor-data';
 import { ISchema } from '/imports/typings/ISchema';
-import { IToDos } from '../../api/toDosSch';
-import { toDosApi } from '../../api/toDosApi';
+import { ITodos } from '../../api/todosSch';
+import { todosApi } from '../../api/todosApi';
 
 interface IInitialConfig {
 	sortProperties: { field: string; sortAscending: boolean };
@@ -14,18 +14,18 @@ interface IInitialConfig {
 	viewComplexTable: boolean;
 }
 
-interface IToDosListContollerContext {
+interface ITodosListContollerContext {
 	onAddButtonClick: () => void;
 	onDeleteButtonClick: (row: any) => void;
-	todoList: IToDos[];
+	todoList: ITodos[];
 	schema: ISchema<any>;
 	loading: boolean;
 	onChangeTextField: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	onChangeCategory: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const ToDosListControllerContext = React.createContext<IToDosListContollerContext>(
-	{} as IToDosListContollerContext
+export const TodosListControllerContext = React.createContext<ITodosListContollerContext>(
+	{} as ITodosListContollerContext
 );
 
 const initialConfig = {
@@ -35,11 +35,11 @@ const initialConfig = {
 	viewComplexTable: false
 };
 
-const ToDosListController = () => {
+const TodosListController = () => {
 	const [config, setConfig] = React.useState<IInitialConfig>(initialConfig);
 
-	const { title, type, typeMulti } = toDosApi.getSchema();
-	const toDosSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
+	const { title, type, typeMulti } = todosApi.getSchema();
+	const todosSchReduzido = { title, type, typeMulti, createdat: { type: Date, label: 'Criado em' } };
 	const navigate = useNavigate();
 
 	const { sortProperties, filter } = config;
@@ -47,25 +47,25 @@ const ToDosListController = () => {
 		[sortProperties.field]: sortProperties.sortAscending ? 1 : -1
 	};
 
-	const { loading, toDoss } = useTracker(() => {
-		const subHandle = toDosApi.subscribe('toDosList', filter, {
+	const { loading, todoss } = useTracker(() => {
+		const subHandle = todosApi.subscribe('todosList', filter, {
 			sort
 		});
-		const toDoss = subHandle?.ready() ? toDosApi.find(filter, { sort }).fetch() : [];
+		const todoss = subHandle?.ready() ? todosApi.find(filter, { sort }).fetch() : [];
 		return {
-			toDoss,
+			todoss,
 			loading: !!subHandle && !subHandle.ready(),
-			total: subHandle ? subHandle.total : toDoss.length
+			total: subHandle ? subHandle.total : todoss.length
 		};
 	}, [config]);
 
 	const onAddButtonClick = useCallback(() => {
 		const newDocumentId = nanoid();
-		navigate(`/toDos/create/${newDocumentId}`);
+		navigate(`/todos/create/${newDocumentId}`);
 	}, []);
 
 	const onDeleteButtonClick = useCallback((row: any) => {
-		toDosApi.remove(row);
+		todosApi.remove(row);
 	}, []);
 
 	const onChangeTextField = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,24 +94,24 @@ const ToDosListController = () => {
 		setConfig((prev) => ({ ...prev, filter: { ...prev.filter, type: value } }));
 	}, []);
 
-	const providerValues: IToDosListContollerContext = useMemo(
+	const providerValues: ITodosListContollerContext = useMemo(
 		() => ({
 			onAddButtonClick,
 			onDeleteButtonClick,
-			todoList: toDoss,
-			schema: toDosSchReduzido,
+			todoList: todoss,
+			schema: todosSchReduzido,
 			loading,
 			onChangeTextField,
 			onChangeCategory: onSelectedCategory
 		}),
-		[toDoss, loading]
+		[todoss, loading]
 	);
 
 	return (
-		<ToDosListControllerContext.Provider value={providerValues}>
-			<ToDosListView />
-		</ToDosListControllerContext.Provider>
+		<TodosListControllerContext.Provider value={providerValues}>
+			<TodosListView />
+		</TodosListControllerContext.Provider>
 	);
 };
 
-export default ToDosListController;
+export default TodosListController;

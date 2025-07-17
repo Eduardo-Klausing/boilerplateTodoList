@@ -1,37 +1,36 @@
 import React, { createContext, useCallback, useContext } from 'react';
-import ToDosDetailView from './toDosDetailView';
 import { useNavigate } from 'react-router-dom';
-import { ToDosModuleContext } from '../../toDosContainer';
+import { TodosModuleContext } from '../../todosContainer';
 import { useTracker } from 'meteor/react-meteor-data';
-import { toDosApi } from '../../api/toDosApi';
-import { IToDos } from '../../api/toDosSch';
+import { todosApi } from '../../api/todosApi';
+import { ITodos } from '../../api/todosSch';
 import { ISchema } from '/imports/typings/ISchema';
 import { IMeteorError } from '/imports/typings/BoilerplateDefaultTypings';
-import { SysAppLayoutContext } from '/imports/app/appLayout';
 
-interface IToDosDetailContollerContext {
+
+interface ITodosDetailContollerContext {
 	closePage: () => void;
-	document: IToDos;
+	document: ITodos;
 	loading: boolean;
-	schema: ISchema<IToDos>;
-	onSubmit: (doc: IToDos) => void;
+	schema: ISchema<ITodos>;
+	onSubmit: (doc: ITodos) => void;
 	changeToEdit: (id: string) => void;
 }
 
-export const ToDosDetailControllerContext = createContext<IToDosDetailContollerContext>(
-	{} as IToDosDetailContollerContext
+export const TodosDetailControllerContext = createContext<ITodosDetailContollerContext>(
+	{} as ITodosDetailContollerContext
 );
 
-const ToDosDetailController = () => {
+const TodosDetailController = () => {
 	const navigate = useNavigate();
-	const { id, state } = useContext(ToDosModuleContext);
+	const { id, state } = useContext(TodosModuleContext);
 	const { showNotification } = useContext(SysAppLayoutContext);
 
 	const { document, loading } = useTracker(() => {
-		const subHandle = !!id ? toDosApi.subscribe('toDosDetail', { _id: id }) : null;
-		const document = id && subHandle?.ready() ? toDosApi.findOne({ _id: id }) : {};
+		const subHandle = !!id ? todosApi.subscribe('todosDetail', { _id: id }) : null;
+		const document = id && subHandle?.ready() ? todosApi.findOne({ _id: id }) : {};
 		return {
-			document: (document as IToDos) ?? ({ _id: id } as IToDos),
+			document: (document as ITodos) ?? ({ _id: id } as ITodos),
 			loading: !!subHandle && !subHandle?.ready()
 		};
 	}, [id]);
@@ -40,12 +39,12 @@ const ToDosDetailController = () => {
 		navigate(-1);
 	}, []);
 	const changeToEdit = useCallback((id: string) => {
-		navigate(`/toDos/edit/${id}`);
+		navigate(`/todos/edit/${id}`);
 	}, []);
 
-	const onSubmit = useCallback((doc: IToDos) => {
+	const onSubmit = useCallback((doc: ITodos) => {
 		const selectedAction = state === 'create' ? 'insert' : 'update';
-		toDosApi[selectedAction](doc, (e: IMeteorError) => {
+		todosApi[selectedAction](doc, (e: IMeteorError) => {
 			if (!e) {
 				closePage();
 				showNotification({
@@ -64,18 +63,18 @@ const ToDosDetailController = () => {
 	}, []);
 
 	return (
-		<ToDosDetailControllerContext.Provider
+		<TodosDetailControllerContext.Provider
 			value={{
 				closePage,
 				document: { ...document, _id: id },
 				loading,
-				schema: toDosApi.getSchema(),
+				schema: todosApi.getSchema(),
 				onSubmit,
 				changeToEdit
 			}}>
-			{<ToDosDetailView />}
-		</ToDosDetailControllerContext.Provider>
+			{<TodosDetailView />}
+		</TodosDetailControllerContext.Provider>
 	);
 };
 
-export default ToDosDetailController;
+export default TodosDetailController;

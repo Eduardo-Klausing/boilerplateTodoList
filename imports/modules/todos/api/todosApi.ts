@@ -1,14 +1,14 @@
 // region Imports
 import { ProductBase } from '../../../api/productBase';
-import { toDosSch, IToDos } from './toDosSch';
+import { todosSch, ITodos } from './todosSch';
 
-class ToDosApi extends ProductBase<IToDos> {
+class TodosApi extends ProductBase<ITodos> {
 	constructor() {
-		super('toDos', toDosSch, {
+		super('todos', todosSch, {
 			enableCallMethodObserver: true,
 			enableSubscribeObserver: true
 		});
 	}
 }
 
-export const toDosApi = new ToDosApi();
+export const todosApi = new TodosApi();
