@@ -5,9 +5,8 @@ import { check, Match } from 'meteor/check';
 
 interface Tarefa {
   _id: string;
-  titulo: string;
-  descricao?: string;
-  situacao: 'pendente' | 'em-andamento' | 'concluida';
+  descricao: string;
+  situacao: 'Não concluída' | 'Concluída';
   dataAtualizacao: Date;
   userId: string;
 }
@@ -16,16 +15,14 @@ export const TarefasCollection = new Mongo.Collection<Tarefa>('tarefas');
 
 // Definição da interface para os dados do formulário
 interface TarefaData {
-  titulo: string;
-  descricao?: string;
-  situacao: 'pendente' | 'em-andamento' | 'concluida';
+  descricao: string;
+  situacao: 'Não concluída' | 'Concluída';
 }
 
 // Métodos 
 Meteor.methods({
   'tarefas.inserir': async function(tarefaData: TarefaData) {
   check(tarefaData, {
-    titulo: String,
     descricao: Match.Maybe(String),
     situacao: String
   });
@@ -37,7 +34,6 @@ Meteor.methods({
   const agora = new Date();
 
   return await TarefasCollection.insertAsync({
-    titulo: tarefaData.titulo,
     descricao: tarefaData.descricao, // Adicione se necessário
     situacao: tarefaData.situacao,
     dataAtualizacao: agora,
@@ -48,7 +44,6 @@ Meteor.methods({
   'tarefas.atualizar': async function(tarefaId: string, tarefaData: TarefaData) {
   check(tarefaId, String);
   check(tarefaData, {
-    titulo: String,
     descricao: Match.Maybe(String),
     situacao: String
   });
@@ -68,7 +63,6 @@ Meteor.methods({
 
   return await TarefasCollection.updateAsync(tarefaId, {
     $set: {
-      titulo: tarefaData.titulo,
       descricao: tarefaData.descricao,
       situacao: tarefaData.situacao,
       dataAtualizacao: new Date()

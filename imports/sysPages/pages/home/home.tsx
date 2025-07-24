@@ -87,11 +87,12 @@ const { tarefasRecentes, isLoading } = useTracker(() => {
                     border: '1px solid #e0e0e0',
                     borderRadius: 1,
                     mb: 1,
-                    backgroundColor: '#fafafa'
+                    backgroundColor: '#fafafa',
+                    minWidth: '340px'
                   }}
                 >
                   <ListItemText
-                    primary={tarefa.titulo}
+                    primary={tarefa.descricao}
                     secondary={
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
                         <Chip
@@ -99,9 +100,6 @@ const { tarefasRecentes, isLoading } = useTracker(() => {
                           color={getSituacaoColor(tarefa.situacao)}
                           size="small"
                         />
-                        <Typography variant="caption" color="text.secondary">
-                          Atualizado em: {new Date(tarefa.dataAtualizacao).toLocaleString('pt-BR')}
-                        </Typography>
                       </Box>
                     }
                   />

@@ -35,10 +35,8 @@ import { TarefasCollection } from '/imports/api/tarefas';
 
 interface Tarefa {
   _id: string;
-  titulo: string;
-  descricao?: string;
-  situacao: 'pendente' | 'em-andamento' | 'concluida';
-  dataCriacao?: Date;
+  descricao: string;
+  situacao: 'Não concluída' | 'Concluída';
   dataAtualizacao: Date;
   userId: string;
 }
@@ -48,17 +46,21 @@ const ToDoList: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Tarefa | null>(null);
   const [formData, setFormData] = useState<{
-    titulo: string;
     descricao: string;
-    situacao: 'pendente' | 'em-andamento' | 'concluida';
+    situacao: 'Não concluída' | 'Concluída';
   }>({
-    titulo: '',
     descricao: '',
-    situacao: 'pendente'
+    situacao: 'Não concluída'
   });
 
   // Subscription para as tarefas do usuário
-  const { tarefas, isLoading } = useTracker(() => {
+  interface UseTrackerData {
+    tarefas: Tarefa[];
+    users: { [key: string]: string }; // Add the 'users' property to the interface
+    isLoading: boolean;
+   }
+
+  const { tarefas, users, isLoading } = useTracker<UseTrackerData>(() => {
   const userId = Meteor.userId();
   if (!userId) {
    // Se chegou aqui, não há usuário logado — você pode redirecionar ou retornar lista vazia
@@ -77,16 +79,14 @@ const ToDoList: React.FC = () => {
     if (task) {
       setEditingTask(task);
       setFormData({
-        titulo: task.titulo,
         descricao: task.descricao || '',
         situacao: task.situacao
       });
     } else {
       setEditingTask(null);
       setFormData({
-        titulo: '',
         descricao: '',
-        situacao: 'pendente'
+        situacao: 'Não concluída'
       });
     }
     setDialogOpen(true);
@@ -96,18 +96,12 @@ const ToDoList: React.FC = () => {
     setDialogOpen(false);
     setEditingTask(null);
     setFormData({
-      titulo: '',
       descricao: '',
-      situacao: 'pendente'
+      situacao: 'Não concluída'
     });
   };
 
   const handleSubmit = () => {
-    if (!formData.titulo.trim()) {
-      alert('Por favor, insira um título para a tarefa.');
-      return;
-    }
-
     if (editingTask) {
       // Atualizar tarefa existente
       Meteor.call('tarefas.atualizar', editingTask._id, formData, (error: Meteor.Error | undefined) => {
@@ -141,11 +135,9 @@ const ToDoList: React.FC = () => {
 
   const getSituacaoColor = (situacao: string): 'warning' | 'info' | 'success' | 'default' => {
     switch (situacao) {
-      case 'pendente':
+      case 'Não concluída':
         return 'warning';
-      case 'em-andamento':
-        return 'info';
-      case 'concluida':
+      case 'Concluída':
         return 'success';
       default:
         return 'default';
@@ -200,26 +192,17 @@ const ToDoList: React.FC = () => {
                   border: '1px solid #e0e0e0',
                   borderRadius: 1,
                   mb: 1,
-                  backgroundColor: '#fafafa'
+                  backgroundColor: '#fafafa',
+                  minWidth: '400px'
                 }}
               >
                 <ListItemText
-                  primary={tarefa.titulo}
+                  primary={tarefa.descricao}
                   secondary={
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {tarefa.descricao || 'Sem descrição'}
+                        {tarefa.descricao}
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                        <Chip
-                          label={getSituacaoLabel(tarefa.situacao)}
-                          color={getSituacaoColor(tarefa.situacao)}
-                          size="small"
-                        />
-                        <Typography variant="caption" color="text.secondary">
-                          Atualizado em: {new Date(tarefa.dataAtualizacao).toLocaleString('pt-BR')}
-                        </Typography>
-                      </Box>
                     </Box>
                   }
                 />
@@ -266,39 +249,12 @@ const ToDoList: React.FC = () => {
               <Grid item xs={12}>
                 <TextField
                   autoFocus
-                  label="Título"
-                  fullWidth
-                  value={formData.titulo}
-                  onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
                   label="Descrição"
                   fullWidth
-                  multiline
-                  rows={4}
                   value={formData.descricao}
                   onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                  required
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel>Situação</InputLabel>
-                  <Select
-                    value={formData.situacao}
-                    label="Situação"
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      situacao: e.target.value as 'pendente' | 'em-andamento' | 'concluida'
-                    })}
-                  >
-                    <MenuItem value="pendente">Pendente</MenuItem>
-                    <MenuItem value="em-andamento">Em Andamento</MenuItem>
-                    <MenuItem value="concluida">Concluída</MenuItem>
-                  </Select>
-                </FormControl>
               </Grid>
             </Grid>
           </Box>
