@@ -61,7 +61,7 @@ const ToDoList: React.FC = () => {
   }
   const subscription = Meteor.subscribe('tarefas.usuario');
   const tasks = TarefasCollection
-   .find({ userId: userId! }, { sort: { dataAtualizacao: -1 } })
+   .find({ userId: userId! })
    .fetch();
     return {
       tarefas: tasks,
@@ -190,8 +190,47 @@ const ToDoList: React.FC = () => {
                   minWidth: '400px'
                 }}
               >
+
+                 {/* Círculo de checkbox */}
+                  <IconButton
+                    onClick={() => {
+                      const novaSituacao = tarefa.situacao === 'Concluída' ? 'Não concluída' : 'Concluída';
+                      Meteor.call('tarefas.atualizar', tarefa._id, {
+                        descricao: tarefa.descricao,
+                        situacao: novaSituacao
+                      }, (error: Meteor.Error | undefined) => {
+                        if (error) {
+                          alert('Erro ao atualizar situação: ' + error.message);
+                        }
+                      });
+                    }}
+                    sx={{
+                      border: '2px solid #888',
+                      mr: 2,
+                      width: 24,
+                      height: 24,
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      p: 0,
+                    }}
+                  >
+                    {tarefa.situacao === 'Concluída' && (
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>✓</Typography>
+                    )}
+                  </IconButton>
+
                 <ListItemText
-                  primary={tarefa.descricao}
+                  primary={
+                    <Typography
+                      sx={{
+                        textDecoration: tarefa.situacao === 'Concluída' ? 'line-through' : 'none',
+                      }}
+                    >
+                      {tarefa.descricao}
+                    </Typography>
+                  }
                   secondary={
                     <Box sx={{ mt: 1 }}>
                       <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '0.75rem' }}>
