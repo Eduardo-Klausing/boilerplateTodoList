@@ -54,13 +54,7 @@ const ToDoList: React.FC = () => {
   });
 
   // Subscription para as tarefas do usuário
-  interface UseTrackerData {
-    tarefas: Tarefa[];
-    users: { [key: string]: string }; // Add the 'users' property to the interface
-    isLoading: boolean;
-   }
-
-  const { tarefas, users, isLoading } = useTracker<UseTrackerData>(() => {
+  const { tarefas, isLoading } = useTracker(() => {
   const userId = Meteor.userId();
   if (!userId) {
    // Se chegou aqui, não há usuário logado — você pode redirecionar ou retornar lista vazia
@@ -200,8 +194,8 @@ const ToDoList: React.FC = () => {
                   primary={tarefa.descricao}
                   secondary={
                     <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {tarefa.descricao}
+                      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '0.75rem' }}>
+                        {"Criado por: " + (tarefa.userId === Meteor.userId() ? 'Você' : (Meteor.user()?.username))}
                       </Typography>
                     </Box>
                   }
