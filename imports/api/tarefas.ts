@@ -98,17 +98,26 @@ Meteor.methods({
 // Publicações
 if (Meteor.isServer) {
   // Publicação para as tarefas do usuário
-  Meteor.publish('tarefas.usuario', function() {
+  Meteor.publish('tarefas.usuario', function(searchTerm = '') {
+    check(searchTerm, String);
+
     if (!this.userId) {
       return this.ready();
     }
-    // Retorna tarefas pessoais do usuário logado e tarefas não pessoais de todos
- return TarefasCollection.find({
-  $or: [
-    { pessoal: true, userId: this.userId },
-    { pessoal: { $ne: true } } // ou { pessoal: false }
-    ]
-    }, { sort: { dataAtualizacao: -1 } });
+
+    const query = {
+      $and: [
+        {
+          $or: [
+            { pessoal: true, userId: this.userId },
+            { pessoal: { $ne: true } }
+          ]
+        },
+        { descricao: { $regex: new RegExp(searchTerm, 'i') } }
+      ]
+    };
+
+    return TarefasCollection.find(query, { sort: { dataAtualizacao: -1 } }); 
   });
 
   // Publicação para as últimas tarefas (para a tela inicial)

@@ -41,6 +41,7 @@ interface Tarefa {
 const ToDoList: React.FC = () => {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [editingTask, setEditingTask] = useState<Tarefa | null>(null);
   const [formData, setFormData] = useState({
     descricao: '',
@@ -48,8 +49,8 @@ const ToDoList: React.FC = () => {
     pessoal: false,
   });
 
-  const { tarefas, usuarios, isLoading } = useTracker(() => {
-    const tarefasSub = Meteor.subscribe('tarefas.usuario');
+    const { tarefas, usuarios, isLoading } = useTracker(() => { 
+    const tarefasSub = Meteor.subscribe('tarefas.usuario', searchTerm); 
     const usersSub = Meteor.subscribe('users.usernames');
 
     const tarefas = TarefasCollection.find({}, { sort: { dataAtualizacao: -1 } }).fetch();
@@ -60,7 +61,7 @@ const ToDoList: React.FC = () => {
       usuarios,
       isLoading: !tarefasSub.ready() || !usersSub.ready(),
     };
-  }, []);
+  }, [searchTerm]);
 
   const handleOpenDialog = (task?: Tarefa) => {
     if (task) {
@@ -139,6 +140,16 @@ const ToDoList: React.FC = () => {
         <Typography variant="h4">Minhas Tarefas</Typography>
       </Box>
 
+      <Box sx={{ mb: 3 }}>
+        <TextField
+          label="Pesquisar tarefas..."
+          fullWidth
+          variant="outlined"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Box>
+
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Lista de Tarefas
@@ -168,7 +179,8 @@ const ToDoList: React.FC = () => {
                     const novaSituacao = tarefa.situacao === 'Concluída' ? 'Não concluída' : 'Concluída';
                     Meteor.call('tarefas.atualizar', tarefa._id, {
                       descricao: tarefa.descricao,
-                      situacao: novaSituacao
+                      situacao: novaSituacao,
+                      pessoal: tarefa.pessoal,
                     }, (error: Meteor.Error | undefined) => {
                       if (error) {
                         alert('Erro ao atualizar situação: ' + error.message);
