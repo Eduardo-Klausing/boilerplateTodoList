@@ -8,6 +8,7 @@ interface Tarefa {
   descricao: string;
   situacao: 'Não concluída' | 'Concluída';
   dataAtualizacao: Date;
+  pessoal: boolean;
   userId: string;
 }
 
@@ -17,6 +18,7 @@ export const TarefasCollection = new Mongo.Collection<Tarefa>('tarefas');
 interface TarefaData {
   descricao: string;
   situacao: 'Não concluída' | 'Concluída';
+  pessoal: boolean;
 }
 
 // Métodos 
@@ -24,7 +26,8 @@ Meteor.methods({
   'tarefas.inserir': async function(tarefaData: TarefaData) {
   check(tarefaData, {
     descricao: Match.Maybe(String),
-    situacao: String
+    situacao: String,
+    pessoal: Boolean,
   });
 
   if (!this.userId) {
@@ -37,6 +40,7 @@ Meteor.methods({
     descricao: tarefaData.descricao, // Adicione se necessário
     situacao: tarefaData.situacao,
     dataAtualizacao: agora,
+    pessoal: tarefaData.pessoal,
     userId: this.userId
   });
   },
@@ -45,7 +49,8 @@ Meteor.methods({
   check(tarefaId, String);
   check(tarefaData, {
     descricao: Match.Maybe(String),
-    situacao: String
+    situacao: String,
+    pessoal: Boolean,
   });
 
   if (!this.userId) {
@@ -65,7 +70,8 @@ Meteor.methods({
     $set: {
       descricao: tarefaData.descricao,
       situacao: tarefaData.situacao,
-      dataAtualizacao: new Date()
+      dataAtualizacao: new Date(),
+      pessoal: tarefaData.pessoal,
     }
   });
   },
@@ -96,8 +102,13 @@ if (Meteor.isServer) {
     if (!this.userId) {
       return this.ready();
     }
-
-    return TarefasCollection.find({}, { sort: { dataAtualizacao: -1 } });
+    // Retorna tarefas pessoais do usuário logado e tarefas não pessoais de todos
+ return TarefasCollection.find({
+  $or: [
+    { pessoal: true, userId: this.userId },
+    { pessoal: { $ne: true } } // ou { pessoal: false }
+    ]
+    }, { sort: { dataAtualizacao: -1 } });
   });
 
   // Publicação para as últimas tarefas (para a tela inicial)
@@ -108,7 +119,9 @@ if (Meteor.isServer) {
       return this.ready();
     }
 
-    return TarefasCollection.find({}, { 
+    return TarefasCollection.find({
+    $or: [{ pessoal: true, userId: this.userId }, { pessoal: { $ne: true } }]
+    }, { 
         sort: { dataAtualizacao: -1 },
         limit: limit
       });

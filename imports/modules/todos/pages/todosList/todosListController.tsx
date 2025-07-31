@@ -25,6 +25,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
+import SimpleFormSwitch from '/imports/ui/components/SimpleFormSwitch/SimpleFormSwitch';
 import { useTracker } from 'meteor/react-meteor-data';
 import { TarefasCollection } from '/imports/api/tarefas';
 
@@ -33,6 +34,7 @@ interface Tarefa {
   descricao: string;
   situacao: 'Não concluída' | 'Concluída';
   dataAtualizacao: Date;
+  pessoal: boolean;
   userId: string;
 }
 
@@ -43,6 +45,7 @@ const ToDoList: React.FC = () => {
   const [formData, setFormData] = useState({
     descricao: '',
     situacao: 'Não concluída' as 'Não concluída' | 'Concluída',
+    pessoal: false,
   });
 
   const { tarefas, usuarios, isLoading } = useTracker(() => {
@@ -64,13 +67,15 @@ const ToDoList: React.FC = () => {
       setEditingTask(task);
       setFormData({
         descricao: task.descricao || '',
-        situacao: task.situacao
+        situacao: task.situacao,
+        pessoal: task.pessoal || false,
       });
     } else {
       setEditingTask(null);
       setFormData({
         descricao: '',
-        situacao: 'Não concluída'
+        situacao: 'Não concluída',
+        pessoal: false,
       });
     }
     setDialogOpen(true);
@@ -81,7 +86,8 @@ const ToDoList: React.FC = () => {
     setEditingTask(null);
     setFormData({
       descricao: '',
-      situacao: 'Não concluída'
+      situacao: 'Não concluída',
+      pessoal: false,
     });
   };
 
@@ -242,6 +248,15 @@ const ToDoList: React.FC = () => {
                   required
                 />
               </Grid>
+                <Grid item xs={12}>
+               <SimpleFormSwitch
+                label="Tarefa Pessoal"
+                checked={formData.pessoal}
+                onChange={(e) => setFormData({ ...formData, pessoal: e.target.checked })}
+                name="pessoal"
+                color="primary"
+              />
+          </Grid>
             </Grid>
           </Box>
         </DialogContent>
