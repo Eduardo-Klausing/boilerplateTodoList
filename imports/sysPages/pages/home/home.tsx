@@ -17,7 +17,10 @@ const Home: React.FC = () => {
   const { Container, Header } = HomeStyles;
   const navigate = useNavigate();
   
-const { tarefasRecentes, isLoading } = useTracker(() => {
+  const { tarefasRecentes, usuarios, isLoading} = useTracker(() => {
+  const tarefasSub = Meteor.subscribe('tarefas.usuario');
+  const usersSub = Meteor.subscribe('users.usernames');
+  const usuarios = Meteor.users.find({}, { fields: { username: 1 } }).fetch();
   const subscription = Meteor.subscribe('tarefas.recentes', 5);
   const tarefas = TarefasCollection
     .find({}, { sort: { dataAtualizacao: -1 }, limit: 5 })
@@ -25,7 +28,8 @@ const { tarefasRecentes, isLoading } = useTracker(() => {
 
   return {
     tarefasRecentes: tarefas,
-    isLoading: !subscription.ready(),
+    usuarios,
+    isLoading: !subscription.ready() || !usersSub.ready(),
   };
 }, []);
 
@@ -58,6 +62,11 @@ const { tarefasRecentes, isLoading } = useTracker(() => {
 
   const handleNavigateToTodoList = () => {
     navigate('/todos');
+  };
+
+  const getUsernameById = (userId: string) => {
+    const user = usuarios.find(u => u._id === userId);
+    return user?.username || 'Desconhecido';
   };
 
   return (
@@ -94,13 +103,9 @@ const { tarefasRecentes, isLoading } = useTracker(() => {
                   <ListItemText
                     primary={tarefa.descricao}
                     secondary={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                        <Chip
-                          label={getSituacaoLabel(tarefa.situacao)}
-                          color={getSituacaoColor(tarefa.situacao)}
-                          size="small"
-                        />
-                      </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          Criado por: {tarefa.userId === Meteor.userId() ? 'Você' : getUsernameById(tarefa.userId)}
+                        </Typography>
                     }
                   />
                 </ListItem>

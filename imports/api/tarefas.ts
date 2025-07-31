@@ -97,10 +97,7 @@ if (Meteor.isServer) {
       return this.ready();
     }
 
-    return TarefasCollection.find(
-      { userId: this.userId },
-      { sort: { dataAtualizacao: -1 } }
-    );
+    return TarefasCollection.find({}, { sort: { dataAtualizacao: -1 } });
   });
 
   // Publicação para as últimas tarefas (para a tela inicial)
@@ -111,13 +108,10 @@ if (Meteor.isServer) {
       return this.ready();
     }
 
-    return TarefasCollection.find(
-      { userId: this.userId },
-      { 
+    return TarefasCollection.find({}, { 
         sort: { dataAtualizacao: -1 },
         limit: limit
-      }
-    );
+      });
   });
 }
 

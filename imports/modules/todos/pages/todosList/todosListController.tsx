@@ -8,17 +8,12 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   IconButton,
-  Chip,
   Box,
   Paper,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Grid,
   Fab
 } from '@mui/material';
@@ -31,7 +26,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { useTracker } from 'meteor/react-meteor-data';
-import { TarefasCollection } from '/imports/api/tarefas'; 
+import { TarefasCollection } from '/imports/api/tarefas';
 
 interface Tarefa {
   _id: string;
@@ -45,27 +40,22 @@ const ToDoList: React.FC = () => {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Tarefa | null>(null);
-  const [formData, setFormData] = useState<{
-    descricao: string;
-    situacao: 'Não concluída' | 'Concluída';
-  }>({
+  const [formData, setFormData] = useState({
     descricao: '',
-    situacao: 'Não concluída'
+    situacao: 'Não concluída' as 'Não concluída' | 'Concluída',
   });
 
-  // Subscription para as tarefas do usuário
-  const { tarefas, isLoading } = useTracker(() => {
-  const userId = Meteor.userId();
-  if (!userId) {
-   // Se chegou aqui, não há usuário logado — você pode redirecionar ou retornar lista vazia
-  }
-  const subscription = Meteor.subscribe('tarefas.usuario');
-  const tasks = TarefasCollection
-   .find({ userId: userId! })
-   .fetch();
+  const { tarefas, usuarios, isLoading } = useTracker(() => {
+    const tarefasSub = Meteor.subscribe('tarefas.usuario');
+    const usersSub = Meteor.subscribe('users.usernames');
+
+    const tarefas = TarefasCollection.find({}, { sort: { dataAtualizacao: -1 } }).fetch();
+    const usuarios = Meteor.users.find({}, { fields: { username: 1 } }).fetch();
+
     return {
-      tarefas: tasks,
-      isLoading: !subscription.ready()
+      tarefas,
+      usuarios,
+      isLoading: !tarefasSub.ready() || !usersSub.ready(),
     };
   }, []);
 
@@ -97,7 +87,6 @@ const ToDoList: React.FC = () => {
 
   const handleSubmit = () => {
     if (editingTask) {
-      // Atualizar tarefa existente
       Meteor.call('tarefas.atualizar', editingTask._id, formData, (error: Meteor.Error | undefined) => {
         if (error) {
           alert('Erro ao atualizar tarefa: ' + error.message);
@@ -106,7 +95,6 @@ const ToDoList: React.FC = () => {
         }
       });
     } else {
-      // Criar nova tarefa
       Meteor.call('tarefas.inserir', formData, (error: Meteor.Error | undefined) => {
         if (error) {
           alert('Erro ao criar tarefa: ' + error.message);
@@ -127,32 +115,13 @@ const ToDoList: React.FC = () => {
     }
   };
 
-  const getSituacaoColor = (situacao: string): 'warning' | 'info' | 'success' | 'default' => {
-    switch (situacao) {
-      case 'Não concluída':
-        return 'warning';
-      case 'Concluída':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
-
-  const getSituacaoLabel = (situacao: string) => {
-    switch (situacao) {
-      case 'pendente':
-        return 'Pendente';
-      case 'em-andamento':
-        return 'Em Andamento';
-      case 'concluida':
-        return 'Concluída';
-      default:
-        return situacao;
-    }
-  };
-
   const handleBackToHome = () => {
     navigate('/');
+  };
+
+  const getUsernameById = (userId: string) => {
+    const user = usuarios.find(u => u._id === userId);
+    return user?.username || 'Desconhecido';
   };
 
   return (
@@ -161,21 +130,19 @@ const ToDoList: React.FC = () => {
         <IconButton onClick={handleBackToHome} sx={{ mr: 2 }}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4">
-          Minhas Tarefas
-        </Typography>
+        <Typography variant="h4">Minhas Tarefas</Typography>
       </Box>
 
       <Paper sx={{ p: 2, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           Lista de Tarefas
         </Typography>
-        
+
         {isLoading ? (
           <Typography variant="body1">Carregando tarefas...</Typography>
         ) : tarefas.length === 0 ? (
           <Typography variant="body1" color="text.secondary">
-            Nenhuma tarefa encontrada. Clique no botão "+" para adicionar uma nova tarefa.
+            Nenhuma tarefa encontrada. Clique no botão "+" para adicionar.
           </Typography>
         ) : (
           <List>
@@ -190,70 +157,60 @@ const ToDoList: React.FC = () => {
                   minWidth: '400px'
                 }}
               >
-
-                 {/* Círculo de checkbox */}
-                  <IconButton
-                    onClick={() => {
-                      const novaSituacao = tarefa.situacao === 'Concluída' ? 'Não concluída' : 'Concluída';
-                      Meteor.call('tarefas.atualizar', tarefa._id, {
-                        descricao: tarefa.descricao,
-                        situacao: novaSituacao
-                      }, (error: Meteor.Error | undefined) => {
-                        if (error) {
-                          alert('Erro ao atualizar situação: ' + error.message);
-                        }
-                      });
-                    }}
-                    sx={{
-                      border: '2px solid #888',
-                      mr: 2,
-                      width: 24,
-                      height: 24,
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      p: 0,
-                    }}
-                  >
-                    {tarefa.situacao === 'Concluída' && (
-                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>✓</Typography>
-                    )}
-                  </IconButton>
+                <IconButton
+                  onClick={() => {
+                    const novaSituacao = tarefa.situacao === 'Concluída' ? 'Não concluída' : 'Concluída';
+                    Meteor.call('tarefas.atualizar', tarefa._id, {
+                      descricao: tarefa.descricao,
+                      situacao: novaSituacao
+                    }, (error: Meteor.Error | undefined) => {
+                      if (error) {
+                        alert('Erro ao atualizar situação: ' + error.message);
+                      }
+                    });
+                  }}
+                  sx={{
+                    border: '2px solid #888',
+                    mr: 2,
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 0,
+                  }}
+                >
+                  {tarefa.situacao === 'Concluída' && (
+                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>✓</Typography>
+                  )}
+                </IconButton>
 
                 <ListItemText
                   primary={
-                    <Typography
-                      sx={{
-                        textDecoration: tarefa.situacao === 'Concluída' ? 'line-through' : 'none',
-                      }}
-                    >
+                    <Typography sx={{
+                      textDecoration: tarefa.situacao === 'Concluída' ? 'line-through' : 'none',
+                    }}>
                       {tarefa.descricao}
                     </Typography>
                   }
                   secondary={
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2" color="text.secondary" gutterBottom sx={{ fontSize: '0.75rem' }}>
-                        {"Criado por: " + (tarefa.userId === Meteor.userId() ? 'Você' : (Meteor.user()?.username))}
-                      </Typography>
-                    </Box>
+                    <Typography variant="body2" color="text.secondary">
+                      Criado por: {tarefa.userId === Meteor.userId() ? 'Você' : getUsernameById(tarefa.userId)}
+                    </Typography>
                   }
                 />
                 <ListItemSecondaryAction>
-                  <IconButton
-                    edge="end"
-                    onClick={() => handleOpenDialog(tarefa)}
-                    sx={{ mr: 1 }}
-                  >
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton
-                    edge="end"
-                    onClick={() => handleDelete(tarefa._id)}
-                    color="error"
-                  >
-                    <DeleteIcon />
-                  </IconButton>
+                  {tarefa.userId === Meteor.userId() && (
+                    <>
+                      <IconButton edge="end" onClick={() => handleOpenDialog(tarefa)} sx={{ mr: 1 }}>
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton edge="end" onClick={() => handleDelete(tarefa._id)} color="error">
+                        <DeleteIcon />
+                      </IconButton>
+                    </>
+                  )}
                 </ListItemSecondaryAction>
               </ListItem>
             ))}
@@ -261,7 +218,6 @@ const ToDoList: React.FC = () => {
         )}
       </Paper>
 
-      {/* Botão flutuante para adicionar nova tarefa */}
       <Fab
         color="primary"
         aria-label="add"
@@ -271,11 +227,8 @@ const ToDoList: React.FC = () => {
         <AddIcon />
       </Fab>
 
-      {/* Dialog para criar ou editar tarefa */}
       <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {editingTask ? 'Editar Tarefa' : 'Nova Tarefa'}
-        </DialogTitle>
+        <DialogTitle>{editingTask ? 'Editar Tarefa' : 'Nova Tarefa'}</DialogTitle>
         <DialogContent>
           <Box sx={{ pt: 2 }}>
             <Grid container spacing={2}>

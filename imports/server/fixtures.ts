@@ -5,35 +5,59 @@ import { userprofileServerApi } from '../modules/userprofile/api/userProfileServ
 async function createDefautUser() {
 	// if (Meteor.isDevelopment && Meteor.users.find().count() === 0) {
 	const count = await Meteor.users.find({}).countAsync();
-	if ((await Meteor.users.find({}).countAsync()) === 0) {
-		let createdUserId = '';
-		createdUserId = await Accounts.createUserAsync({
+		const usersToCreate = [
+		{
 			username: 'Administrador',
 			email: 'admin@mrb.com',
-			password: 'admin@mrb.com'
-		});
-
-
-		await Meteor.users.upsertAsync(
-			{ _id: createdUserId },
-			{
-				$set: {
-					'emails.0.verified': true,
-					profile: {
-						name: 'Admin',
-						email: 'admin@mrb.com'
-					}
-				}
-			}
-		);
-
-		await userprofileServerApi.getCollectionInstance().insertAsync({
-			_id: createdUserId,
-			username: 'Administrador',
-			email: 'admin@mrb.com',
+			password: 'admin@mrb.com',
 			roles: ['Administrador']
-		});
-	}
+		},
+		{
+			username: 'Usuário 1',
+			email: 'usuario1@mrb.com',
+			password: 'usuario1@mrb.com',
+			roles: ['Usuario']
+		},
+		{
+			username: 'Usuário 2',
+			email: 'usuario2@mrb.com',
+			password: 'usuario2@mrb.com',
+			roles: ['Usuario']
+		},
+	]
+
+		for (const user of usersToCreate) {
+			const existingUser = await Meteor.users.findOneAsync({ 'emails.address': user.email });
+
+			if(!existingUser){
+				const createdUserId = await Accounts.createUserAsync({
+					username: user.username,
+					email: user.email,
+					password: user.password,
+				});
+
+				await Meteor.users.upsertAsync(
+					{ _id: createdUserId },
+					{
+						$set: {
+							'emails.0.verified': true,
+							profile: {
+								name: user.username,
+								email: user.email,
+								roles: user.roles
+							}
+						}
+					}
+				);
+
+				await userprofileServerApi.getCollectionInstance().insertAsync({
+					_id: createdUserId,
+					username: user.username,
+					email: user.email,
+					roles: ['Administrador']
+				});
+			}
+		}
 }
 
 // if the database is empty on server start, create some sample data.
@@ -42,3 +66,4 @@ Meteor.startup(async () => {
 	// Add default admin account
 	await createDefautUser();
 });
+
